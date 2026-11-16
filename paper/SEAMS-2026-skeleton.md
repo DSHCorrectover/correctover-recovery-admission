@@ -86,6 +86,10 @@ The recovery second is where agentic autonomy is highest and governance is absen
 - Reproduction: `python3 verify-recovery.py` (576/576 PASS) · `python3 verify-recovery.py --tamper` (CAUGHT)
 - Honesty statement: HONESTY.md (in repo).
 
+## Hard constraint (non-negotiable, set 2026-11-16)
+
+**`deployment_count` field accepts only {0, 1+}. Never "in-progress", "planned", "pilot-intent", or "local production-like simulation".** If E4's deployment does not land by submission, the paper says **zero** and cites the honest-reporting rule (§6, rule 4). This rule cannot be waived by deadline pressure — it is the same epistemology the suite imposes on others; waiving it for ourselves voids VERIFIED_BY.md entirely.
+
 ## Submission checklist
 - [ ] §2 motivating incident (find public post-mortem or use census rates)
 - [ ] §3 comparison table
