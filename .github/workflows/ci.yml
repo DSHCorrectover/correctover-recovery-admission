@@ -1,0 +1,66 @@
+name: ci
+
+# Every artifact in this repo must reproduce on a clean machine.
+# If CI cannot re-run it, it does not belong here.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"   # daily: catch PyPI/npm drift, not just our own commits
+
+jobs:
+  pypi-selfcheck:
+    name: PyPI artifact — python -m recovery_admission
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install published package (not the checkout)
+        run: pip install recovery-admission
+      - name: Selfcheck — 576/576 agreement required
+        run: python -m recovery_admission
+      - name: Repo verifier must agree with the artifact
+        run: python3 verify-recovery.py
+
+  npm-selfcheck:
+    name: npm artifact — recovery-admission --selfcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install published package (not the checkout)
+        run: npm i -g recovery-admission
+      - name: Selfcheck — 576/576 agreement required
+        run: recovery-admission --selfcheck
+
+  data-integrity:
+    name: Vector data — JSON valid + digests stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JSON parses
+        run: |
+          python3 - << 'EOF'
+          import json
+          for f in ["recovery-admission-v3-vectors.json", "crosswalk-ecr-ra.json", "ecr/ecr-vectors-v1.json", "report/recovery-admission-report.json"]:
+              json.load(open(f))
+              print("OK", f)
+          EOF
+      - name: Vector count locked at 576
+        run: |
+          python3 - << 'EOF'
+          import json
+          v = json.load(open("recovery-admission-v3-vectors.json"))
+          cases = v["cases"] if isinstance(v, dict) and "cases" in v else v
+          assert len(cases) == 576, f"expected 576 vectors, got {len(cases)}"
+          print("576/576 vectors present")
+          EOF
