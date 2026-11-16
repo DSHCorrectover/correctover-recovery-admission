@@ -129,6 +129,32 @@
       request; they are silent after admission. This specification occupies
       the intersection: pre-execution authorization FOR recovery actions, with
       tamper-evident post-execution binding.</t>
+      <t>Closest known work: Emilia Protocol Gate (@emilia-protocol/gate,
+      EP-RECOVERY-CAPABILITY-v1) implements recovery classification at an
+      admission boundary with a signed capability binding one exact
+      action/provider/adapter tuple, a three-class recovery taxonomy
+      (LOCAL_ATOMIC / RESERVED_COMPENSATION / IRREVERSIBLE), and fail-closed
+      handling of unavailable relying-party status callbacks. Emilia appears
+      to occupy the ISSUANCE AND EXECUTION position: a production
+      implementation that authorizes recoveries at runtime under an issuer's
+      capability model, with revocation delivered through issuer-side
+      callbacks. This specification takes the verification position and is
+      complementary, not competing: (1) Emilia binds authority to exact
+      tuples via an issuer signature; this document defines DELEGATION-CHAIN
+      completeness classes (chained-valid / tail-mismatch / broken-chain /
+      none-direct) with revocation propagation semantics that a capability
+      model alone does not expose, and demonstrates their distinguishability
+      on 576 anchors. (2) Emilia's refusals are runtime decisions; this
+      document's reason classes are machine-checkable and independently
+      re-derivable through a verifier on a different code path, with a tamper
+      self-test and a digest-only negative branch measured live. (3) The term
+      "recovery admission" is used descriptively in this document and in the
+      Emilia artifacts; no exclusivity is claimed for the term. The claim
+      staked here is narrower and testable: the decision semantics as written
+      can be refuted by counterexample, and any implementation — including
+      Emilia's — can be exercised against this suite's anchors as a
+      conformance probe for delegation and integrity corner cases that a
+      capability-only model does not surface.</t>
     </section>
   </back>
 </rfc>
