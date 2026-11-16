@@ -28,11 +28,15 @@ jobs:
           PYV=$(python3 -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
           NPV=$(node -p "require('./package.json').version")
           echo "version=$PYV" >> "$GITHUB_OUTPUT"
-          if [ "${GITHUB_REF_NAME#v}" != "$PYV" ] || [ "${GITHUB_REF_NAME#v}" != "$NPV" ]; then
-            echo "::error::tag ${GITHUB_REF_NAME} != pyproject $PYV != package.json $NPV — all three must match"
+          if [ "$PYV" != "$NPV" ]; then
+            echo "::error::pyproject $PYV != package.json $NPV — both manifests must match"
             exit 1
           fi
-          echo "tag/pyproject/package.json all at $PYV"
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "${GITHUB_REF_NAME#v}" != "$PYV" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} != $PYV — tag must equal the version being published"
+            exit 1
+          fi
+          echo "parity ok at $PYV (event: $GITHUB_EVENT_NAME)"
 
   build:
     needs: verify-tag
