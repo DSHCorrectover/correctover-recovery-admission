@@ -1,0 +1,21 @@
+{
+  "version": "1.0-provisional",
+  "date": "2026-11-16",
+  "ecr_source": "neuralbridge-ecr-20261116 (cloud-side, D1 done, replay pending)",
+  "axes": {
+    "ecr": "what changed in the receipt (change classification, 8 codes)",
+    "ra": "whether the recovery should be admitted (576 anchors, 6 orthogonal dims)"
+  },
+  "mapping": [
+    {"ecr": "unresolved-failure-ref", "ra_action": "REFUSES", "ra_reason_family": "integrity-digest-tampered", "anchors_evidence": "digest-only negative branch 288/288"},
+    {"ecr": "recovery-replay", "ra_action": "REFUSES", "ra_reason_family": "integrity-digest-tampered", "anchors_evidence": "args_digest binding dim"},
+    {"ecr": "param-widening", "ra_action": "REFUSES", "ra_reason_family": "version-major-drift|integrity", "anchors_evidence": "effective_args digest dim"},
+    {"ecr": "capability-downgrade", "ra_action": "DOWNGRADE|REFUSES", "ra_reason_family": "scope-reduced-retry", "anchors_evidence": "2 anchors"},
+    {"ecr": "execution-set-change", "ra_action": "REFUSES", "ra_reason_family": "delegation-broken-chain", "anchors_evidence": "72 anchors"},
+    {"ecr": "subject-drift", "ra_action": "REFUSES", "ra_reason_family": "identity-revoked-local|propagated", "anchors_evidence": "72 anchors"},
+    {"ecr": "unapproved-path", "ra_action": "ESCALATE|REFUSES", "ra_reason_family": "human-gate-required|no-chain-cannot-bind-state-action", "anchors_evidence": "30 anchors"},
+    {"ecr": "authority-unchanged", "ra_action": "ALLOW", "ra_reason_family": "clean|no-chain-readonly-local-bind", "anchors_evidence": "13 anchors"}
+  ],
+  "contradiction_rule": "Any ECR/RA combo outside the allowed pairs above is a reportable counterexample per VERIFIED_BY.md attribution policy (negative results credited same-or-better).",
+  "external_links": {"emilia_gate": "Related Work cross-boundary in draft-correctover-recovery-admission-00.xml Appendix B"}
+}
