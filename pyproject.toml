@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recovery-admission"
+version = "0.1.3"
+description = "Falsifiable Recovery Admission suite: explicit decision table + independent verifier over 576 anchors (6 orthogonal dimensions). Dataset CC0, code Apache-2.0."
+readme = "DESCRIPTION.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [{name = "Guigui Wang", email = "wangguigui@correctover.com"}]
+keywords = ["recovery-admission", "agentic-systems", "MAPE-K", "authorization", "verification"]
+classifiers = ["Development Status :: 4 - Beta", "Intended Audience :: Science/Research", "Topic :: Security", "License :: OSI Approved :: Apache Software License"]
+
+[project.urls]
+Homepage = "https://github.com/DSHCorrectover/correctover-recovery-admission"
+DOI = "https://doi.org/10.5281/zenodo.24280454"
+
+[tool.setuptools]
+packages = ["recovery_admission"]
+
+[tool.setuptools.package-data]
+recovery_admission = ["*.json"]

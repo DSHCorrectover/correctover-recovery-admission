@@ -1,0 +1,12 @@
+{
+  "name": "recovery-admission",
+  "version": "0.1.1",
+  "description": "Falsifiable Recovery Admission suite: explicit decision table + independent verifier over 576 anchors (6 orthogonal dimensions). Dataset CC0, code Apache-2.0.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Guigui Wang <wangguigui@correctover.com>",
+  "keywords": ["recovery-admission", "agentic-systems", "MAPE-K", "authorization", "verification"],
+  "repository": "github:DSHCorrectover/correctover-recovery-admission",
+  "bin": { "recovery-admission": "./verify.mjs" },
+  "files": ["verify.mjs", "recovery-admission-v3-vectors.json", "README.md"]
+}
