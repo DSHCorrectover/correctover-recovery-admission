@@ -1,5 +1,7 @@
 # Correctover Recovery Admission
 
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24280454-blue)](https://doi.org/10.5281/zenodo.24280454)
+
 **Not a gateway — the authorization control plane for the seconds *after* the gateway says yes.** Every self-healing action (retry / degrade / failover / request-rewrite) passes a four-dimension admission decision *before* execution — identity, tool version, side effect, runtime state — and signs a tamper-evident receipt *after*.
 
 Run it (10 seconds, no install beyond Python 3.8+):

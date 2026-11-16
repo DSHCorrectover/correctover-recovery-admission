@@ -116,7 +116,7 @@
       72), propagated vs local revocation (36/36), integrity (288) and
       genuine policy refusals are separately machine-checkable.</t>
       <t>Provenance binding: the vector dataset carries its own DOI
-      (Zenodo, CC0, DOI TBD-ON-PUBLISH) so that this draft references an
+      (Zenodo, CC0, DOI 10.5281/zenodo.24280454) so that this draft references an
       immutable, citable snapshot instead of a mutable repository; the record
       cross-references this draft via related-identifier, closing a
       mutual-evidence loop (draft cites DOI; DOI cites draft; GitHub mirror
