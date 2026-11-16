@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.9", "3.12"]
+        python: ["3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -60,7 +60,7 @@ jobs:
           python3 - << 'EOF'
           import json
           v = json.load(open("recovery-admission-v3-vectors.json"))
-          cases = v["cases"] if isinstance(v, dict) and "cases" in v else v
+          cases = v["vectors"] if isinstance(v, dict) and "vectors" in v else v
           assert len(cases) == 576, f"expected 576 vectors, got {len(cases)}"
           print("576/576 vectors present")
           EOF
