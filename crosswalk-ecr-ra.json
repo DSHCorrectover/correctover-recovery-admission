@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.0-provisional",
   "date": "2026-11-16",
   "ecr_source": "neuralbridge-ecr-20261116 (cloud-side, D1 done, replay superseded by independent reference build (this repo, verified))",
   "axes": {
