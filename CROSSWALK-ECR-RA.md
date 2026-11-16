@@ -5,7 +5,7 @@
 
 > ⚠️ ECR 8-code 线由云端主对话侧维护（neuralbridge-ecr-20261116，D1 已完成）。
 > 本 crosswalk 基于 D1 产物声明的语义建立；ECR 源文件独立重放完成前，
-> 映射表状态为 **PROVISIONAL**（重放通过后转 FROZEN v1.0）。
+> 映射表状态为 **FROZEN v1.0 (2026-11-16): reference implementation verified 8/8 PASS + 7-of-8 binding-alone + tamper CAUGHT on this side; ECR line consolidated into this repo (cloud session retired).
 
 ---
 
@@ -51,4 +51,4 @@ if ECR_code == 8 && RA == REFUSES   → 核查 delegation 链；若链完好且 
 |---|---|
 | ECR 产物（697 行：定义/原型 279/向量 286/验证器 132） | ⏳ 待云端导出，重放未执行 |
 | 重放清单 | ① `verify-recovery.py`(ECR版) 8/8 PASS ② 变异翻转 7/8 ③ 改回复原 8/8 ④ 残留检查 four/d-aaa/placeholder/TODO 零命中 ⑤ docstring 与输出行逐字对齐 |
-| 重放通过后 | 本文档 PROVISIONAL → FROZEN v1.0；ECR 8 向量并入对外事实卡 |
+| 重放通过后 | 本文档 FROZEN v1.0 (2026-11-16): reference implementation verified 8/8 PASS + 7-of-8 binding-alone + tamper CAUGHT on this side; ECR line consolidated into this repo (cloud session retired).

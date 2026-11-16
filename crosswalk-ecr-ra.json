@@ -1,7 +1,7 @@
 {
-  "version": "1.0-provisional",
+  "version": "1.0",
   "date": "2026-11-16",
-  "ecr_source": "neuralbridge-ecr-20261116 (cloud-side, D1 done, replay pending)",
+  "ecr_source": "neuralbridge-ecr-20261116 (cloud-side, D1 done, replay superseded by independent reference build (this repo, verified))",
   "axes": {
     "ecr": "what changed in the receipt (change classification, 8 codes)",
     "ra": "whether the recovery should be admitted (576 anchors, 6 orthogonal dims)"

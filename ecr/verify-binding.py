@@ -14,7 +14,7 @@ Exit 0 = agreement, 1 = any disagreement.
 import json, sys, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-VEC = os.path.join(HERE, "recovery-vectors-v1.json")
+VEC = os.path.join(HERE, "ecr-vectors-v1.json")
 
 ORDER = ["unresolved-failure-ref", "recovery-replay", "param-widening",
          "capability-downgrade", "execution-set-change", "subject-drift",
