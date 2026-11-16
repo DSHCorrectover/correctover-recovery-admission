@@ -1,0 +1,16 @@
+{
+  "suite": "ecr-recovery-vectors-v1-reference",
+  "note": "Independent reference implementation rebuilt from the D1 declaration (cloud-side). Semantics: every receipt below is cryptographically well-formed (signature valid, hash chain intact, digest recomputable) - the binding check asks whether the ORIGINAL authorization covers THIS recovery.",
+  "digest_only_rule": "accepts all eight",
+  "author_set": "accepts all eight",
+  "vectors": [
+    {"id": "ECR-1", "scenario": "receipt cites a failure reference that cannot be resolved to any recorded incident", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "failure_ref_resolvable": false, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "unresolved-failure-ref"},
+    {"id": "ECR-2", "scenario": "the same receipt is presented a second time for an already-executed recovery", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "already_executed": true, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "recovery-replay"},
+    {"id": "ECR-3", "scenario": "recovery parameters widen beyond the scope of the original approved request", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "params_within_original": false, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "param-widening"},
+    {"id": "ECR-4", "scenario": "recovery executes with authority lower than the original grant, changing effective capability", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "authority_below_original": true, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "capability-downgrade"},
+    {"id": "ECR-5", "scenario": "recovery target set differs from the execution set named in the original authorization", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "execution_set_matches": false, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "execution-set-change"},
+    {"id": "ECR-6", "scenario": "recovery executes under a subject identity that drifted from the authorized principal", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "subject_matches": false, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "subject-drift"},
+    {"id": "ECR-7", "scenario": "recovery takes a path never approved in the original authorization", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "path_approved": false, "binding_covers_recovery": false}, "expected": "OUT_OF_SCOPE", "reason_code": "unapproved-path"},
+    {"id": "ECR-8", "scenario": "recovery changes nothing about effective authority; receipt binding is covered", "receipt": {"sig_valid": true, "chain_intact": true, "digest_recomputable": true, "binding_covers_recovery": true}, "expected": "IN_SCOPE", "reason_code": "authority-unchanged"}
+  ]
+}
