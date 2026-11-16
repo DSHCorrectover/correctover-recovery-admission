@@ -19,7 +19,7 @@ python3 verify-binding.py --tamper   # -> CAUGHT
 | 词汇 | 8 码=品类状态码级 | 576 码=判例法级（穷举 6 维） |
 | 层 | 执行面：收据生成与绑定验证 | 验证面：判定语义可反驳 |
 
-- 映射契约见 [`CROSSWALK-ECR-RA.md`](../CROSSWALK-ECR-RA.md)（已 FROZEN v1.0）
+- 映射契约见 [`CROSSWALK-ECR-RA.md`](../CROSSWALK-ECR-RA.md)（PROVISIONAL——冻结条件：独立重放五项全过，见 ecr/d1-original/README 验收条款）
 - 矛盾矩阵 = 反例引擎：任何 ECR/RA 组合落在允许对之外即按 VERIFIED_BY.md 署名上报
 - 新增 ECR 码必须先在 RA suite 有对应锚，否则对外不可引用
 
