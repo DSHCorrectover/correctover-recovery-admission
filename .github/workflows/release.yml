@@ -1,68 +1,58 @@
 name: release
 
-# Tag a version (v0.1.3-style, tag must equal the version in both manifests)
-# and both registries get built from THIS repo — no more out-of-repo builds.
+# Publish one registry at a time. Tags:
+#   pypi-v0.1.4  -> build wheel/sdist, smoke it, publish to PyPI (trusted publishing)
+#   npm-v0.1.2   -> smoke package.json, publish to npm
+# Tag must equal the version in that registry's manifest.
+# workflow_dispatch = dry run: build + selfcheck only, never publishes.
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["pypi-v*", "npm-v*"]
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "build only, do not publish"
-        type: boolean
-        default: true
 
 permissions:
-  id-token: write   # trusted publishing (PyPI OIDC)
+  id-token: write
 
 jobs:
-  verify-tag:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.v.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: v
-        run: |
-          PYV=$(python3 -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
-          NPV=$(node -p "require('./package.json').version")
-          echo "version=$PYV" >> "$GITHUB_OUTPUT"
-          if [ "$PYV" != "$NPV" ]; then
-            echo "::error::pyproject $PYV != package.json $NPV — both manifests must match"
-            exit 1
-          fi
-          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "${GITHUB_REF_NAME#v}" != "$PYV" ]; then
-            echo "::error::tag ${GITHUB_REF_NAME} != $PYV — tag must equal the version being published"
-            exit 1
-          fi
-          echo "parity ok at $PYV (event: $GITHUB_EVENT_NAME)"
-
-  build:
-    needs: verify-tag
+  pypi:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/pypi-v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - uses: actions/setup-node@v4
-        with: { node-version: "20", registry-url: "https://registry.npmjs.org" }
-      - run: pip install build && python -m build
-      - name: Build smoke — wheel selfchecks 576/576
+      - name: Version parity (tag vs pyproject) — skipped on dry run
+        if: ${{ github.event_name == 'push' }}
         run: |
-          pip install dist/*.whl
-          python -m recovery_admission
-      - name: Publish PyPI (trusted publishing)
+          PYV=$(python3 -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          [ "${GITHUB_REF_NAME#pypi-v}" = "$PYV" ] || { echo "::error::tag ${GITHUB_REF_NAME} != pyproject $PYV"; exit 1; }
+      - run: pip install build && python -m build
+      - name: Smoke — wheel selfchecks 576/576
+        run: pip install dist/*.whl && python -m recovery_admission
+      - name: Publish to PyPI
         if: ${{ github.event_name == 'push' }}
         uses: pypa/gh-action-pypi-publish@release/v1
-      - name: Publish npm
+
+  npm:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/npm-v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", registry-url: "https://registry.npmjs.org" }
+      - name: Version parity (tag vs package.json) — skipped on dry run
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          NPV=$(node -p "require('./package.json').version")
+          [ "${GITHUB_REF_NAME#npm-v}" = "$NPV" ] || { echo "::error::tag ${GITHUB_REF_NAME} != package.json $NPV"; exit 1; }
+      - name: Smoke — npm pack artifact runs selfcheck
+        run: |
+          npm pack
+          npm i -g ./recovery-admission-*.tgz
+          recovery-admission --selfcheck
+      - name: Publish to npm
         if: ${{ github.event_name == 'push' }}
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
-      - name: Post-publish recheck — artifacts fresh on registries
-        if: ${{ github.event_name == 'push' }}
-        run: |
-          sleep 30
-          pip index versions recovery-admission | grep -i "${{ needs.verify-tag.outputs.version }}" || pip download recovery-admission==${{ needs.verify-tag.outputs.version }} -d /tmp/dl --no-deps
-          echo "published version visible: ${{ needs.verify-tag.outputs.version }}"
