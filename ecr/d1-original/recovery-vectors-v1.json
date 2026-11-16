@@ -1,0 +1,286 @@
+{
+  "suite": "correctover-recovery-v1",
+  "title": "Evidence-Carrying Runtime — recovery receipts, eight anchors",
+  "version": "1.0.0",
+  "author_set": "Correctover (github.com/DSHCorrectover) — an independent author-set for the recovery-receipt surface. Every anchor is decided by parsing the recovery event against the failed decision it claims to recover; a pipeline that only checks the signature and the args digest accepts all eight.",
+  "derivation": "Each anchor is one recovery event plus the failed decision it references. `params_before_digest` and `params_after_digest` are SHA-256 over RFC 8785 (JCS) of the params object. The verdict is computed from the event alone — no out-of-band state, no trust in the producer. Anchors are independent scenarios, not one chain: r1/r2/r3/r4/r6/r7/r8 share a failed_decision_hash because their params_before are identical, so feeding them through a single seen-set would make recovery-replay fire on six of them. Only r4 carries prior_failed_decision_hashes, and it is the only one intended to be read as a replay. Also note args_digest covers params only, not correlation_id.",
+  "claim": "Automatic recovery is the one execution path that can legitimately bypass the authorization decision and leave no verifiable trace. These eight anchors are the cases where a signed, hash-chained, digest-correct record still represents an authority change. A digest-only pipeline passes seven of them.",
+  "verdict_rules": [
+    "unresolved-failure-ref — failed_decision_hash != failed_decision.args_digest (the record claims to recover a failure it does not name)",
+    "recovery-replay      — failed_decision_hash already appears earlier in the same chain",
+    "param-widening       — params_after_digest != params_before_digest",
+    "capability-downgrade — action == 'downgrade'",
+    "execution-set-change — action == 'skip_provider'",
+    "subject-drift        — subject_before != subject_after",
+    "unapproved-path      — level == 'l4_learned'",
+    "authority-unchanged  — none of the above (IN_SCOPE)"
+  ],
+  "anchors": [
+    {
+      "name": "r1-plain-retry",
+      "note": "Same tool, same subject, same params, same level. The retry is a retry. Both a digest-only pipeline and binding agree it is in scope — this anchor exists so the suite is not all-REFUSES, which would make it uninformative.",
+      "failed_decision": {
+        "correlation_id": "c-001",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "recovery": {
+        "correlation_id": "c-001",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "retry",
+        "level": "l1_retry",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "attempt": 2,
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "expected_verdict": "IN_SCOPE",
+      "expected_reason": "authority-unchanged"
+    },
+    {
+      "name": "r2-param-widening",
+      "note": "First call times out at amount=100. The recovery uses FIX_REQUEST and dispatches amount=250. Both receipts carry a correct digest of their own params, so a digest-only pipeline sees two valid records and passes both. Only a comparison of params_before against params_after shows that the amount the caller approved is not the amount that was executed. This is the same failure class as the tool-binding suite's b3-param-widening-amount, moved from the decision record into the recovery record.",
+      "failed_decision": {
+        "correlation_id": "c-002",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "recovery": {
+        "correlation_id": "c-002",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "fix_request",
+        "level": "l1_retry",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 250
+        },
+        "attempt": 2,
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "cb7e31dc72008cd3c535b3593807e632d9ff94a2a8775a601dd8c5d9804361ea",
+        "declared_params_digest": "cb7e31dc72008cd3c535b3593807e632d9ff94a2a8775a601dd8c5d9804361ea"
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "param-widening"
+    },
+    {
+      "name": "r3-subject-drift",
+      "note": "provider-A fails, FAILOVER routes the same call to provider-B. Params are byte-identical, so digest comparison is clean on both records. But the subject that executes is not the subject the caller bound to. In a regulated flow the difference between provider-A and provider-B is the difference between two data-processing agreements.",
+      "failed_decision": {
+        "correlation_id": "c-003",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "recovery": {
+        "correlation_id": "c-003",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "failover",
+        "level": "l3_failover",
+        "subject_before": "provider-A",
+        "subject_after": "provider-B",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "attempt": 2,
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "subject-drift"
+    },
+    {
+      "name": "r4-recovery-replay",
+      "note": "The same failed decision (1e2f92d9ab9a4df3...) is recovered twice. Each recovery record, read on its own, is perfectly valid: correct digest, correct signature, in-scope action. Only a chain-aware verifier that remembers which failures it has already seen can tell that the side effect is about to happen a second time. This is the case no per-record check can catch by construction, which is why it is placed first among the per-record checks, after the failure-reference check.",
+      "failed_decision": {
+        "correlation_id": "c-001",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "prior_failed_decision_hashes": [
+        "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      ],
+      "recovery": {
+        "correlation_id": "c-001",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "retry",
+        "level": "l1_retry",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "attempt": 3,
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "recovery-replay"
+    },
+    {
+      "name": "r5-capability-downgrade",
+      "note": "The retry silently swaps gpt-4 for gpt-4-mini. Params are byte-identical, the subject string the caller bound to is unchanged, the level is a normal l2. Every field a digest-only pipeline can read is correct. What changed is the quality tier of the answer, and the caller has no way to see it. Placed after param-widening because a widened param is the harder-to-detect harm; placed before subject-drift because the action itself is the change, not a side effect of it.",
+      "failed_decision": {
+        "correlation_id": "c-r5",
+        "tool": "chat",
+        "args_digest": "f93cd2a053eea18b68e59cef3a6f1c09105d1ff894f337a212963a3eae73c19b"
+      },
+      "recovery": {
+        "correlation_id": "c-r5",
+        "failed_decision_hash": "f93cd2a053eea18b68e59cef3a6f1c09105d1ff894f337a212963a3eae73c19b",
+        "action": "downgrade",
+        "level": "l2_downgrade",
+        "subject_before": "gpt-4",
+        "subject_after": "gpt-4",
+        "params_before": {
+          "tool": "chat",
+          "model": "gpt-4"
+        },
+        "params_after": {
+          "tool": "chat",
+          "model": "gpt-4"
+        },
+        "params_before_digest": "f93cd2a053eea18b68e59cef3a6f1c09105d1ff894f337a212963a3eae73c19b",
+        "params_after_digest": "f93cd2a053eea18b68e59cef3a6f1c09105d1ff894f337a212963a3eae73c19b",
+        "declared_params_digest": "f93cd2a053eea18b68e59cef3a6f1c09105d1ff894f337a212963a3eae73c19b",
+        "attempt": 2
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "capability-downgrade"
+    },
+    {
+      "name": "r6-execution-set-change",
+      "note": "SKIP_PROVIDER drops one executor from the set the caller approved. Nothing in params changes, no subject string changes, and both receipts digest correctly. The call that runs is a call over a smaller execution set than the one that was authorised - the same class of harm as subject-drift, but reached by removing a participant rather than substituting one.",
+      "failed_decision": {
+        "correlation_id": "c-r6",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "recovery": {
+        "correlation_id": "c-r6",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "skip_provider",
+        "level": "l1_retry",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "attempt": 2
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "execution-set-change"
+    },
+    {
+      "name": "r7-unapproved-path",
+      "note": "The flywheel produced this recovery route itself. It did not exist when the policy was written, nobody approved it, and it carries l4_learned as its only trace. The params are the approved params, the subject is the approved subject, the action is a plain retry - which is exactly why this is the quietest of the eight. A verifier that only compares fields will never see it.",
+      "failed_decision": {
+        "correlation_id": "c-r7",
+        "tool": "send_payment",
+        "args_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea"
+      },
+      "recovery": {
+        "correlation_id": "c-r7",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "retry",
+        "level": "l4_learned",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "attempt": 2
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "unapproved-path"
+    },
+    {
+      "name": "r8-unresolved-failure-ref",
+      "note": "The receipt names a failed decision whose args digest is not the hash it carries. Read on its own the record is flawless: correct digest over its own params, in-scope action, same subject, same level. It is only when the verifier asks the record to prove which failure it recovers that the chain breaks. This is the anchor that keeps step 0 alive - without it, every check on the failure reference is dead code.",
+      "failed_decision": {
+        "correlation_id": "c-r8",
+        "tool": "send_payment",
+        "args_digest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recovery": {
+        "correlation_id": "c-r8",
+        "failed_decision_hash": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "action": "retry",
+        "level": "l1_retry",
+        "subject_before": "provider-A",
+        "subject_after": "provider-A",
+        "params_before": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_after": {
+          "tool": "send_payment",
+          "to": "acct-A",
+          "amount": 100
+        },
+        "params_before_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "params_after_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "declared_params_digest": "1e2f92d9ab9a4df3dc733b9cb707eec06c631938b8304ba4460484b6b6a5e5ea",
+        "attempt": 2
+      },
+      "expected_verdict": "OUT_OF_SCOPE",
+      "expected_reason": "unresolved-failure-ref"
+    }
+  ],
+  "digest_only_rule": "A digest-only pipeline reads `declared_params_digest` off the receipt and recomputes SHA-256(JCS(params_after)). It never compares params_before against params_after, because it has no notion of an approved baseline — only of a record that has not been tampered with. Every anchor here carries its real digest, so that pipeline accepts all eight."
+}

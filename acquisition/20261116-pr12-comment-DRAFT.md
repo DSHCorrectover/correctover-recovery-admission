@@ -1,0 +1,11 @@
+A note on this PR's own history, since the diff shows three commits and a reviewer would otherwise have to reconstruct why.
+
+**v1 → v2.** The first commit (4ffd29d) shipped six anchors, and only one of them carried a real digest — the happy-path anchor used a 65-character placeholder constant (a valid digest is 64), and `verify.py` skipped digest comparison entirely for that anchor behind a `startswith("e3b0c442")` guard. The stated claim was "cases a digest-only pipeline cannot decide," but with no real digest on the records, that claim had no opponent to lose to. A reviewer running the suite would have found this quickly, and it would have been the only thing they remembered about the PR.
+
+The second commit (1e61664) fixes it rather than rewording the description: all seven anchors now carry their real SHA-256(JCS(effective_args)), `verify.py` compares the digest on every one of them, the guard is gone, and the verifier prints what a digest-only pipeline would have concluded next to each verdict. On five of the seven that column says BINDS while binding says REFUSES. That column is the falsification handle, and it did not exist in v1.
+
+We would rather flag this ourselves than let a reviewer find it. The v1 state is in the commit history either way; the only question is whether the PR says so.
+
+**Layer separation (76ff5e3).** -05 §5.2 requires the Decision record's signer to be independent of the actor **before** the outcome is final, and explicitly excludes the after-the-fact referee role. That requirement is correct, and this author-set does not contest it. What it does instead is state which layer each artifact occupies: authorization-layer independence is established at write time by the Receipt SDK, and nothing in this suite substitutes for it; this suite and the Public Verifier claim integrity-layer verification only — that a signed record has not been tampered with and that its digests are recomputable offline by anyone — and it is not claimed as authorization. The two compose: the write-time independent signature is what makes the post-hoc verdict worth anything, and the post-hoc verification is what makes the write-time claim auditable without trusting the producer.
+
+Reproduce: `python3 conformance/correctover/verify.py` → `7/7 verdicts agree`, `5 of 7 anchors are decided by binding alone`.
