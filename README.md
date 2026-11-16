@@ -51,3 +51,11 @@ The `digest-only` column is the falsifiability anchor: a pipeline that only chec
 ## License
 
 Code: Apache-2.0 · Vector data: [CC0 1.0](DATA-LICENSE.md)
+
+## Reproduction challenge
+
+If you can refute any anchor — a verdict that is semantically wrong, a reason
+code that mislabels reality — open an issue with the anchor id and your
+reasoning. Verified refutations are credit-worthy: we will publish them in the
+suite's changelog with your attribution. Independent reproduction reports are
+welcome and will be linked from this README.
