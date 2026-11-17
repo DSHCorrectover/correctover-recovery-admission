@@ -1,6 +1,8 @@
-# Buyer Dossier — Agent Dispatch-Time Verdict Infrastructure
+# Integration Surface — Agent Dispatch-Time Verdict Infrastructure
 
-One page. Every claim below links to something a due-diligence team can verify without talking to us.
+One page. Every claim below links to something independently verifiable.
+
+> Repo hygiene: `main` is protected — every change lands via PR + required CI checks (including this file).
 
 ## What this company is
 
@@ -16,7 +18,7 @@ Correctover builds **dispatch-time verdict semantics for AI agents**: `(principa
 | Financial MCP Risk Baseline v0.2 (frozen) | Zenodo DOI 10.5281/zenodo.24072293 | versioned, citable |
 | CrewAI actor-drift repro (A/B, one-variable) | `drift/repro.py` in this repo's history / DSHCorrectover | stdlib, exit 0, no frameworks |
 
-## Where the interface gap is already on record (upstream threads we opened or contributed to, with line-level evidence)
+## Where the interface gap is already on record (upstream threads, line-level evidence)
 
 - **crewAIInc/crewAI#5802 / PR #5822** — guard key `tool+input` has no authorization dimension; `BaseTool.run(*args, **kwargs)` (base_tool.py:353) structurally cannot carry one
 - **google/adk-python #6099** — upstream adopted our CCS framing, PR #8198 open (CLA pending)
@@ -26,11 +28,11 @@ Correctover builds **dispatch-time verdict semantics for AI agents**: `(principa
 - **ServiceNow/ai-passport#6** — constraint checks (planned release): CC0 table offered as reference input
 - **impartshadow/agent-contracts#3** — guard author's own repo, correction-then-harder-fact exchange on the record
 
-## Independent verification (in flight)
+## Independent verification
 
 Konrad Gruszka (proofbundle author, first external CCS rev10 reader/erratum submitter) accepted an independent verification invitation 2026-11-16 — will run the 576-vector suite against his own Ed25519/RFC 8785/Merkle stack and publish results either way.
 
-## Buyer-category fit (2026 acquisition themes: agent identities · model testing · runtime protection · permissions · model supply chain · autonomous-software security)
+## Category fit (2026 consolidation themes: agent identities · model testing · runtime protection · permissions · model supply chain · autonomous-software security)
 
-This table sits at **runtime protection × agent identities × permissions**. Related mapping: [public facts](gtm/公开事实卡-对外话术唯一权威源.md kept private; figures above are all public-anchor).
+This table sits at **runtime protection × agent identities × permissions**. All figures above are public-anchor only.
 
