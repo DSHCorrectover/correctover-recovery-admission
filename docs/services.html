@@ -7,7 +7,14 @@
 <p>Cross-implementation battery against official MCP SDKs (Python / TypeScript / Go). For vendors shipping MCP servers or gateways.</p>
 <h2>T3 — Incident-to-Verdict — quote</h2>
 <p>A live incident (authorization bypass, session takeover, replay). We produce a third-party-verifiable determination: what bound to what, when, and whether the control failed.</p>
-<h2>What we are NOT</h2><p class="not">Not a certification body. We review only artifacts you own or are authorized to test. Every finding ships with a replay pack: environment fingerprint, fixed vectors, idempotent reproduction. No reproduction evidence = no finding.</p>
+<h2>Notary — the compliance evidence instrument</h2>
+<p>Under the hood, every engagement runs on the same instrument: <strong>Notary</strong> — a compliance evidence chain. Our open-source gateway (<a href="https://github.com/DSHCorrectover/neuralbridge">DSHCorrectover/neuralbridge</a>) signs a CCS receipt (Ed25519, RFC 8785 canonical JSON, hash-chained, OpenTimestamps Bitcoin-anchored) for <em>every</em> tool call — and for every refusal, a signed failure record. Nothing else in the stack produces evidence at the moment of failure. That receipt chain is what your auditor reads: it does not ask your application to vouch for itself.</p>
+<ul>
+<li>229,827-record public census replayed end-to-end: 0 synthesis failures, 0 chain breaks (replay: <code>zcat server_tools.jsonl.gz | wc -l</code>, release v1.0.0, SHA-256 <code>2350dc77…f5780f</code>)</li>
+<li>Fault injection 8/8 PASS — including signed refusals and chain continuity (0 unanchored entries)</li>
+<li><a href="https://github.com/DSHCorrectover/neuralbridge/blob/main/ACCEPTANCE.md">ACCEPTANCE.md</a>: every claim on this page maps to an automated check; a failing check withdraws the claim</li>
+</ul>
+<h2>What we are NOT</h2><p class="not">Not a certification body. We review only artifacts you own or are authorized to test. Every finding ships with a replay pack: environment fingerprint, fixed vectors, idempotent reproduction. No reproduction evidence = no finding. A valid signature proves the key signed the claim — not that the claim is complete or true.</p>
 <h2>Free tier</h2>
 <p>The five-binding-check vector corpus and two-verifier battery are public, CC0/Apache-2.0: <a href="https://github.com/DSHCorrectover/mcp-session-audit">mcp-session-audit</a>. Run them yourself; pay us when you need the dossier. Decision-table corpus: <a href="https://github.com/DSHCorrectover/correctover-recovery-admission">correctover-recovery-admission</a>.</p>
 <p><a class="cta" href="mailto:wangguigui@correctover.com?subject=T1%20Bounded%20Review%20inquiry"><h2>Payment</h2>
