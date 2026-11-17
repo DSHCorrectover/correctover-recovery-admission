@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "recovery-admission"
-version = "0.1.3"
+version = "0.1.4"
 description = "Falsifiable Recovery Admission suite: explicit decision table + independent verifier over 576 anchors (6 orthogonal dimensions). Dataset CC0, code Apache-2.0."
 readme = "DESCRIPTION.md"
 requires-python = ">=3.8"
