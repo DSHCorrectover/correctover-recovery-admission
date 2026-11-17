@@ -1,8 +1,5 @@
 name: 'Correctover Recovery Admission'
-description: >-
-  Falsifiable decision table for agent recovery/authorization actions —
-  576 anchors across 6 orthogonal dimensions, independent verifier,
-  replayable report. Free tier: single-run verdict with report artifact.
+description: 'Falsifiable decision table for agent recovery/authorization actions. 576 anchors, independent, replayable.'
 branding:
   icon: 'shield'
   color: 'blue'
