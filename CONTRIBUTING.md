@@ -1,13 +1,19 @@
 # Contributing
 
-We actively want a second maintainer. This project's value is falsifiability, and falsifiability needs witnesses.
+**The fastest useful contribution is a disagreement.** If you think one of the 576 anchor verdicts is wrong, open an issue with just: the anchor id + your reason. You do not need to run anything — arguing the reason code is enough, and a published disagreement with a reason is more valuable to this project than a green run.
 
-## What we need most (in order)
-1. **Independent re-verifiers** — run the verifier against your own agent repos, open issues with vectors you disagree with. A disagreement with a published reason is more valuable than a green run.
-2. **New action-class vectors** — the current decision table covers recovery-path actions (retry / degrade / failover / request-rewrite). We are standing up the second action class (delegation-chain actions). See ROADMAP-2026.md.
-3. **Implementations in other languages** — the verifier semantics are deliberately simple; a Rust or Go re-implementation that reproduces the 576-anchor distribution would be a major trust asset.
+## Changing a verdict — the bar
+A verdict change requires: (1) the anchor id, (2) your stated reason, (3) a fixed input vector that reproduces the disagreement, (4) our written acceptance or a published refusal with our reason. Every accepted change lands with both sides visible — the issue stays open as the record.
+
+## What we need most
+1. **Independent re-verifiers** — run the verifier on repos we don't control; a red run on your repo tells us more than a hundred green ones.
+2. **Reason-code disputes** — see above, zero setup required.
+3. **Other-language implementations** — a Rust/Go re-implementation reproducing the 576-anchor distribution would be a major trust asset.
+
+## Response commitment
+Issues are read daily; expect a reply within 72 hours.
 
 ## Ground rules
 - Dataset: CC0. Code: Apache-2.0. No CLA, no copyright assignment.
-- Every new anchor must carry: fixed input vector, expected verdict, reason code. Verdicts without reasons are rejected.
-- If you find a number in this repo that cannot be recomputed from public sources, open an issue immediately. That bug class outranks all others.
+- Every anchor carries: fixed input vector, expected verdict, reason code. Verdicts without reasons are rejected.
+- If you find a number here that cannot be recomputed from public sources, open an issue immediately — that bug class outranks all others.

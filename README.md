@@ -22,6 +22,8 @@ Expected output: `agreement: 576/576 … STATUS: PASS`.
 
 576 vectors, six orthogonal dimensions (nothing hand-tuned — the verdict distribution is a mathematical consequence of exhaustive cross-product)
 
+**Maintenance status:** issues are read daily; expect a reply within 72h.
+
 > The six dimensions are **our decomposition, not a discovered constant** — the cross-product is exhaustive within them. Disagree with a dimension, and the verdicts downstream of it change. That's the part worth arguing with us about.:
 
 | Dimension | Values |

@@ -1,29 +1,31 @@
 # Integrating Correctover Recovery Admission
 
-Built for embedders. Three facts that usually decide integration:
+Written for embedders — platform, framework, and security teams that already have an agent runtime and are missing parameter-level authorization semantics.
 
-## 1. One line to run
+## 1. Minimal integration
 ```yaml
 - uses: DSHCorrectover/correctover-recovery-admission@v0.1.0
 ```
-Or pinned (supply-chain locked):
+Pinned (supply-chain locked):
 ```yaml
 - uses: DSHCorrectover/correctover-recovery-admission@c2eaf3b
 ```
+**Input:** your agent's action records (the workflow points the verifier at your action log or replay file).
+**Output:** per-action verdicts + a machine-readable report artifact (recovery-admission-report.json), recomputed against the published 576-anchor decision table. The verifier is installed from the published PyPI artifact inside the workflow — never from a checkout of this repo.
 
-## 2. The verifier never runs from a checkout
-It is installed from the **published PyPI artifact** inside the workflow. Your CI result does not depend on the state of this repository.
+## 2. Verdict contract
+- **PASS** — the action is within the authorization actually granted, parameter by parameter.
+- **MISMATCH** — the action exceeds granted authorization, on at least one parameter. This is a finding, with a published reason code you can cite.
+- **ESCALATE** — the table cannot decide within its declared scope (e.g., an irreversible action lacking an explicit approval gate). **ESCALATE is not a rejection** — it means "this needs a human or an explicit gate decision before proceeding." It is the honest third state, not a soft no.
 
-## 3. Licensing clears legal review
-- Decision-table dataset: **CC0** (public domain)
-- Verifier code: **Apache-2.0**
-- No CLA, no phone-home, no telemetry. The verdict is computed in your runner.
+## 3. What this does NOT do
+Read this section before involving your security team — it is where we draw the line:
+- **Not a runtime interceptor.** This judges action records after the fact (CI / audit time). It does not sit in your agent's execution path and cannot block anything live.
+- **Not a credential validator.** It does not judge whether credentials are genuine, unexpired, or correctly scoped at the infrastructure level — that is your IAM system's job.
+- **Not a SAST/DAST replacement.** It does not scan code for vulnerabilities and does not overlap with what Semgrep, Snyk, or CodeQL produce. It reads behavior records, not source code. If your product scans code and your agent runtime needs admission semantics, we are complementary by construction.
+- **Not a deployed-system attestation.** A green verdict proves your action stream matches the admission semantics — it does not prove your production deployment is safe. We will refuse to sign a broader claim in writing (see HONESTY.md).
 
-## What this integrates as
-A parameter-level admission check for delegated agent actions: whether an agent's action exceeds the authorization actually granted — judged per parameter, with explicit ALLOW / BLOCK / ESCALATE verdicts and published reason codes.
-
-## Honest scope (also in HONESTY.md)
-This proves the **admission semantics**, not that your deployed system is safe. If you need a production attestation, that is a separate engagement — and we will tell you so in writing.
-
-## Who integrates this
-Anyone who already has an agent runtime and is missing authorization semantics — platform/framework teams, security vendors extending into agent posture, cloud agent services needing recomputable compliance evidence. Integration is deliberately cheaper than evaluation.
+## 4. Licensing & legal
+- Decision-table dataset: **CC0** (public domain — the data is yours to fork, mirror, or re-derive)
+- Verifier code: **Apache-2.0** (static linking and redistribution fine; no CLA)
+- No telemetry, no phone-home. Verdicts are computed entirely in your runner.

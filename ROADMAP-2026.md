@@ -1,17 +1,9 @@
-# Roadmap 2026 (live, revised 2026-11-17)
+# Roadmap (conditional, not dated)
 
-External review identified three gaps. This roadmap addresses them in priority order.
+This is a one-maintainer project; a dated roadmap here would be a list of debts. Signals, not deadlines:
 
-## Q4 2026 — bus factor & first stranger (highest priority)
-- [x] Governance docs: CONTRIBUTING.md, this roadmap, INTEGRATION.md
-- [ ] Second action class standing up: **delegation-chain actions** (a delegates to b, b acts) — decision-table scaffold by 2026-12
-- [ ] First external re-verification: anyone but us running the verifier on a repo we don't control
-- [ ] Cross-implementation: one non-Python verifier reproducing the 576-anchor distribution
+- **Second action class: delegation-chain actions** (a delegates to b; b acts) — we start when the first external re-verification exists (anyone but us running this on a repo we don't control). It reuses the authorization-binding dimensions and adds one delegation-edge dimension; the cross-product stays exhaustive within dimensions, so the result stays recomputable. Not started before that signal — an unbuilt scaffold on the Marketplace page would be the first unrecomputable thing we ship.
+- **Third action class: data-exfiltration-shaped actions** — starts when the second class has an external dispute or adoption.
+- **Cross-implementation verifier** — starts when someone asks for one; the semantics are deliberately simple.
 
-## Q1 2027 — coverage & integration
-- [ ] Third action class: data-exfiltration-shaped actions (reads + sends)
-- [ ] Integration guide v2 with worked examples per platform (Semgrep custom rules bridge, agent-framework middleware)
-- [ ] First integration conversation — only after ≥1 external run exists (empty-hand outreach dies at "who is using this?")
-
-## Standing rule
-Coverage claims stay scoped: the table judges any action class *the same way*; we only *ship* the classes listed above. No unshipped class may be named in marketing copy.
+Standing rule: coverage claims stay scoped to shipped classes. No unshipped class is ever named in marketing copy.
