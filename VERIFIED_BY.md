@@ -38,6 +38,12 @@ This entry stays in VERIFIED_BY even though the code is fixed, because the gap
 class — assertion-by-reason-code instead of assertion-by-field — is the thing
 to watch in every future receipt schema we ship.
 
+And the other side of that ledger (2026-11-17): 45 clean-machine self-checks of
+the published artifact are green, and 5 pushes were caught and blocked by the
+same verifier — the negative branch has fired in production, not just in the
+`--tamper` self-test. A verifier that has never been red provides no evidence;
+ours has a public runs log showing exactly what it refused.
+
 ## Contact
 
 wangguigui@correctover.com — one line is enough to start or to withdraw.
