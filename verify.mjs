@@ -21,10 +21,16 @@ function derive(a) {
   if (deleg === 'none-direct' && revoked) return ['REFUSES', 'identity-revoked-local'];
   if (deleg === 'none-direct' && ra !== 'readonly') return ['REFUSES', 'no-chain-cannot-bind-state-action'];
   if (!verOk) return ['REFUSES', 'version-major-drift'];
-  if (ra === 'failover') return a.runtime === 'fresh' ? ['ALLOW', 'failover-sbsr-rebind'] : ['REFUSES', 'failover-without-fresh-sbsr'];
+  // RA3-0037 adjudication (Xinghua review 2026-11-17): traffic-moving rebind on
+  // unapproved patch drift escalates exactly like the irreversible class does.
+  if (ra === 'failover') {
+    if (a.runtime !== 'fresh') return ['REFUSES', 'failover-without-fresh-sbsr'];
+    return a.dispatched_tool_version === a.approved_tool_version ? ['ALLOW', 'failover-sbsr-rebind'] : ['ESCALATE', 'human-gate-required'];
+  }
   if (deleg === 'none-direct') return ['ALLOW', 'no-chain-readonly-local-bind'];
   if (!a.upstream_ok) return ['HOLD', 'intent-hash-preserved-no-silent-rewrite'];
-  if (ra === 'irreversible') return (fresh && a.dispatched_tool_version === a.approved_tool_version) ? ['ALLOW', 'clean'] : ['ESCALATE', 'human-gate-required'];
+  // F3a fix (Xinghua review): highest-risk class must not share 'clean' with readonly.
+  if (ra === 'irreversible') return (fresh && a.dispatched_tool_version === a.approved_tool_version) ? ['ALLOW', 'irreversible-authorized-exact-fresh'] : ['ESCALATE', 'human-gate-required'];
   if (ra === 'state-write' && !fresh) return ['DOWNGRADE', 'scope-reduced-retry'];
   return ['ALLOW', deleg === 'none-direct' ? 'no-chain-readonly-local-bind' : 'clean'];
 }
