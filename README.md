@@ -56,6 +56,36 @@ The `digest-only` column is the falsifiability anchor: a pipeline that only chec
 - Endpoint-liveness figures were measured **from a sandboxed egress**; treat reachable percentages as lower bounds.
 - This suite proves the admission *decision semantics*, not a deployed production system.
 
+
+## Use as a GitHub Action
+
+Add the free tier to any workflow — one step, no install:
+
+```yaml
+- uses: DSHCorrectover/correctover-recovery-admission@main
+```
+
+What you get: a single-run verdict (PASS / MISMATCH) over the 576-anchor
+decision table, run against the **published** PyPI artifact (never a
+checkout), with a JSON report artifact and a step summary.
+
+### Tiers
+
+| | Free | Paid (planned) |
+|---|---|---|
+| Single-run verdict + report | ✓ | ✓ |
+| Signed receipt (Ed25519, independently verifiable) | — | ✓ |
+| Long-term archive + timestamps | — | ✓ |
+| Recompute bundle for your auditor | — | ✓ |
+| Continuous watch on dependency upgrades | — | ✓ |
+
+The difference between the tiers is not features — it is **whether the
+output is something you can hand to an auditor**. The free tier answers the
+question; the paid tier is the answer with evidence that survives review.
+
+Licensing note: dataset CC0, code Apache-2.0. Nothing here requires you to
+trust us — every claim in this repo is replayable from your own machine.
+
 ## License
 
 Code: Apache-2.0 · Vector data: [CC0 1.0](DATA-LICENSE.md)

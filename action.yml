@@ -1,0 +1,67 @@
+name: 'Correctover Recovery Admission'
+description: >-
+  Falsifiable decision table for agent recovery/authorization actions —
+  576 anchors across 6 orthogonal dimensions, independent verifier,
+  replayable report. Free tier: single-run verdict with report artifact.
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  python-version:
+    description: 'Python for the verifier run'
+    required: false
+    default: '3.12'
+  fail-on-mismatch:
+    description: 'Fail the job if verifier and published artifact disagree'
+    required: false
+    default: 'true'
+  report-name:
+    description: 'Artifact name for the verdict report'
+    required: false
+    default: 'recovery-admission-verdict'
+
+outputs:
+  verdict:
+    description: 'PASS or MISMATCH — also written to the step summary'
+  report-path:
+    description: 'Path to the full JSON verdict report'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install published verifier (not a checkout)
+      shell: bash
+      run: pip install recovery-admission
+    - name: Run decision table — 576/576 agreement required
+      id: verdict
+      shell: bash
+      run: |
+        set -o pipefail
+        if python -m recovery_admission | tee verdict-output.txt; then
+          V=PASS
+        else
+          V=MISMATCH
+        fi
+        echo "verdict=$V" >> "$GITHUB_OUTPUT"
+        echo "report-path=verdict-output.txt" >> "$GITHUB_OUTPUT"
+        {
+          echo "## Recovery Admission verdict: $V"
+          echo ""
+          echo "- Decision table: 576 anchors / 6 orthogonal dimensions"
+          echo "- Verifier source: PyPI \`recovery-admission\` (published artifact, not checkout)"
+          echo "- Replay: \`pip install recovery-admission && python -m recovery_admission\`"
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ "$V" = "MISMATCH" ] && [ "${{ inputs.fail-on-mismatch }}" = "true" ]; then
+          exit 1
+        fi
+    - name: Upload verdict report (free tier — single run, no archive)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.report-name }}
+        path: verdict-output.txt
+        if-no-files-found: warn
