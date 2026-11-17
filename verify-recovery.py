@@ -45,21 +45,39 @@ def derive(a):
     if not ver_ok:
         return ("REFUSES", "version-major-drift")
     if ra == "failover":
-        return ("ALLOW", "failover-sbsr-rebind") if a["runtime"] == "fresh" else ("REFUSES", "failover-without-fresh-sbsr")
+        # RA3-0037 adjudication (Xinghua review): traffic-moving rebind on unapproved
+        # patch drift escalates exactly like the irreversible class does.
+        if a["runtime"] != "fresh":
+            return ("REFUSES", "failover-without-fresh-sbsr")
+        return ("ALLOW", "failover-sbsr-rebind") if a["dispatched_tool_version"] == a["approved_tool_version"] else ("ESCALATE", "human-gate-required")
     if deleg == "none-direct":
         return ("ALLOW", "no-chain-readonly-local-bind")
     if not a["upstream_ok"]:
         return ("HOLD", "intent-hash-preserved-no-silent-rewrite")
     if ra == "irreversible":
-        return ("ALLOW", "clean") if (fresh and a["dispatched_tool_version"] == a["approved_tool_version"]) else ("ESCALATE", "human-gate-required")
+        # F3a fix (Xinghua review): highest-risk class must not share "clean" with readonly.
+        return ("ALLOW", "irreversible-authorized-exact-fresh") if (fresh and a["dispatched_tool_version"] == a["approved_tool_version"]) else ("ESCALATE", "human-gate-required")
     if ra == "state-write" and not fresh:
         return ("DOWNGRADE", "scope-reduced-retry")
     return ("ALLOW", "no-chain-readonly-local-bind" if deleg == "none-direct" else "clean")
+
+GATE_REQ = ("gate_id", "gate_at", "gate_decision", "gate_evidence_digest", "bound_args_digest")
+
+def gate_block_ok(a):
+    """F3b fix (Xinghua review): an ESCALATED action that later proceeds must carry a
+    complete gate block; bound_args_digest must re-bind the exact dispatched args."""
+    if "gate" not in a:
+        return True  # gate block only required when an escalated action proceeds
+    g = a["gate"]
+    return all(k in g for k in GATE_REQ) and g["bound_args_digest"] == a["args_digest"]
 
 def verify(anchors):
     agree, adist, rdist = 0, {}, {}
     for a in anchors:
         got = derive(a)
+        if not gate_block_ok(a):
+            print(f"  GATE-BLOCK INVALID id={a.get('id')}: missing fields or bound_args_digest mismatch")
+            got = ("FAIL", "gate-block-invalid")  # malformed gate block fails the suite
         if got == (a["expected_action"], a["expected_reason"]):
             agree += 1
         else:

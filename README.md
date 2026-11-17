@@ -31,7 +31,15 @@ Two tracks with **fixed semantics**:
 - **Chain track** (delegated, org→a→b): the verdict binds the chain tail; revocation of a mid-chain principal propagates to the tail (`identity-revoked-propagated`). A structurally broken chain or tail mismatch refuses *everything*, readonly included.
 - **No-chain track** (direct grant): the verdict can only bind local assertions → fail-closed for anything but readonly (`no-chain-cannot-bind-state-action`); local revocation has no chain to propagate (`identity-revoked-local` — a distinct reason code, not the same bucket).
 
-`ESCALATE` fires only on *irreversible × (non-fresh or non-exact)* — the table itself locates the human gate; nobody weighted it there.
+`ESCALATE` fires on *irreversible × (non-fresh or non-exact)* **and** on *failover × fresh-but-patch-drift* — a rebind is traffic-moving; routing traffic through an unapproved build gets the same human gate as an irreversible action (RA3-0037 adjudication, Xinghua Zhao review 2026-11-17). The table itself locates the human gate; nobody weighted it there.
+
+Reason-code honesty: `clean` is reserved for readonly/state-write ALLOWs; an irreversible ALLOW carries its own code (`irreversible-authorized-exact-fresh`) so a receipt reader never has to guess which class passed.
+
+Receipt fields that carry their assertions:
+
+- A `failover-sbsr-rebind` ALLOW asserts a rebind — the record carries `rebind_target` and `rebind_authorization` (approval id + `version_locked`). Failover targets are **version-locked** to the approved build; a target that is not version-locked is not pre-approved, it is a gate.
+- The boolean `sbsr_fresh` is the receipt/SBSR credential freshness and is deliberately independent of the `runtime` dimension (`upstream-down` keeps `sbsr_fresh=True`). One word, one predicate.
+- An `ESCALATE` verdict is terminal for the *table*, not for the *world*: if the escalated action later proceeds, the record must carry a gate block — `gate_id`, `gate_at`, `gate_decision`, `gate_evidence_digest`, `bound_args_digest` (the last must re-bind the exact dispatched args). The verifier rejects a record whose gate block is incomplete or unbound (`gate-block-invalid`).
 
 The `digest-only` column is the falsifiability anchor: a pipeline that only checks receipt digests BINDS all 288 intact anchors and REFUSES all 288 tampered ones — the negative branch is live and measured, not assumed.
 

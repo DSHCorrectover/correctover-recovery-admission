@@ -1,0 +1,37 @@
+{
+ "ts": "2026-11-16",
+ "suite": "recovery-admission-v3",
+ "vectors": 576,
+ "dimensions": "deleg(4)x revoked(2)x version(3)x side(4)x runtime(3)x integrity(2)",
+ "table_vs_checker_agreement": 576,
+ "action_distribution": {
+  "ALLOW": 14,
+  "REFUSES": 550,
+  "HOLD": 6,
+  "DOWNGRADE": 2,
+  "ESCALATE": 4
+ },
+ "reason_distribution": {
+  "clean": 6,
+  "integrity-digest-tampered": 288,
+  "intent-hash-preserved-no-silent-rewrite": 6,
+  "scope-reduced-retry": 2,
+  "failover-sbsr-rebind": 1,
+  "failover-without-fresh-sbsr": 4,
+  "irreversible-authorized-exact-fresh": 1,
+  "human-gate-required": 4,
+  "version-major-drift": 15,
+  "identity-revoked-propagated": 36,
+  "delegation-tail-mismatch": 72,
+  "delegation-broken-chain": 72,
+  "no-chain-readonly-local-bind": 6,
+  "no-chain-cannot-bind-state-action": 27,
+  "identity-revoked-local": 36
+ },
+ "digest_only_discrimination": {
+  "tampered_refuses": 288,
+  "tampered_total": 288,
+  "intact_binds": 288
+ },
+ "status": "PASS"
+}
