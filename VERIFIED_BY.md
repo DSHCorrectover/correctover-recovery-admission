@@ -38,11 +38,17 @@ This entry stays in VERIFIED_BY even though the code is fixed, because the gap
 class — assertion-by-reason-code instead of assertion-by-field — is the thing
 to watch in every future receipt schema we ship.
 
-And the other side of that ledger (2026-11-17): 45 clean-machine self-checks of
-the published artifact are green, and 5 pushes were caught and blocked by the
-same verifier — the negative branch has fired in production, not just in the
-`--tamper` self-test. A verifier that has never been red provides no evidence;
-ours has a public runs log showing exactly what it refused.
+And the other side of that ledger (2026-11-17, GitHub API audited): 21 push
+runs on this repo — 16 green, 5 red (the negative branch fired in production,
+not just in the `--tamper` self-test). All-in: 24 runs / 82 jobs — 68 green,
+8 red, 6 skipped. Every skipped job is the release workflow's tag gate doing
+its job (npm/pypi publish jobs skip on non-tag pushes by design; every one is
+individually fetchable from the actions API). A verifier that has never been
+red provides no evidence; ours has a public runs log showing exactly what it
+refused. Correction note: an earlier version of this entry claimed "45
+self-checks" — that number could not be recomputed from any external source
+and has been retired; all counts above are GitHub-API-auditable as of
+2026-11-17.
 
 ## Contact
 
