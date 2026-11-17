@@ -11,7 +11,7 @@ A verdict change requires: (1) the anchor id, (2) your stated reason, (3) a fixe
 3. **Other-language implementations** — a Rust/Go re-implementation reproducing the 576-anchor distribution would be a major trust asset.
 
 ## Response commitment
-Issues are read daily; expect a reply within 72 hours.
+Issues are read daily; expect a reply within 72h on business days — a weekend reply may come Monday.
 
 ## Ground rules
 - Dataset: CC0. Code: Apache-2.0. No CLA, no copyright assignment.
