@@ -62,7 +62,14 @@ The `digest-only` column is the falsifiability anchor: a pipeline that only chec
 Add the free tier to any workflow — one step, no install:
 
 ```yaml
-- uses: DSHCorrectover/correctover-recovery-admission@main
+- uses: DSHCorrectover/correctover-recovery-admission@v0.1.0
+```
+
+Supply-chain locked (pin the commit SHA — what enterprises with CI security
+gates usually require):
+
+```yaml
+- uses: DSHCorrectover/correctover-recovery-admission@c2eaf3b
 ```
 
 What you get: a single-run verdict (PASS / MISMATCH) over the 576-anchor
