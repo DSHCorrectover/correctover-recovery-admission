@@ -1,5 +1,6 @@
 # CROSSWALK-ADK.md — RA 576 suite × google/adk-python (v1.1, 2026-11-17)
 
+**Anchor verdict scope: `per-tool-call`** (applies to every anchor in the 576-vector suite; N calls in one model response → N independent receipts).
 **Status**: v1.1 · **Maintainer**: Correctover (DSHCorrectover)
 **Origin**: proposed in [google/adk-python#6099](https://github.com/google/adk-python/issues/6099) (2026-11-17). This is a community proposal for discussion — no claim that ADK has reviewed, adopted, or run it.
 **Change log v1.0 → v1.1**: ① every anchor's verdict scope declared **per tool call, not per turn** (accepted from @renezander030's note; consistent with @tonydzi's sibling-call repro); ② framework-field mapping corrected against ADK master source — four dimensions marked GAP/cannot-tell instead of assumed-exposed.
