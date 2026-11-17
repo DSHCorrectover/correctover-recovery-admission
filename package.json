@@ -5,8 +5,24 @@
   "type": "module",
   "license": "Apache-2.0",
   "author": "Guigui Wang <wangguigui@correctover.com>",
-  "keywords": ["recovery-admission", "agentic-systems", "MAPE-K", "authorization", "verification"],
+  "keywords": [
+    "recovery-admission",
+    "agentic-systems",
+    "MAPE-K",
+    "authorization",
+    "verification"
+  ],
   "repository": "github:DSHCorrectover/correctover-recovery-admission",
-  "bin": { "recovery-admission": "./verify.mjs" },
-  "files": ["verify.mjs", "recovery-admission-v3-vectors.json", "README.md"]
+  "bin": {
+    "recovery-admission": "./verify.mjs"
+  },
+  "files": [
+    "verify.mjs",
+    "recovery-admission-v3-vectors.json",
+    "README.md"
+  ],
+  "funding": {
+    "type": "custom",
+    "url": "https://dshcorrectover.github.io/correctover-recovery-admission/services.html"
+  }
 }
