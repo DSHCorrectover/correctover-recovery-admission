@@ -5,20 +5,21 @@
  "dimensions": "deleg(4)x revoked(2)x version(3)x side(4)x runtime(3)x integrity(2)",
  "table_vs_checker_agreement": 576,
  "action_distribution": {
-  "ALLOW": 15,
+  "ALLOW": 14,
   "REFUSES": 550,
   "HOLD": 6,
   "DOWNGRADE": 2,
-  "ESCALATE": 3
+  "ESCALATE": 4
  },
  "reason_distribution": {
-  "clean": 7,
+  "clean": 6,
   "integrity-digest-tampered": 288,
   "intent-hash-preserved-no-silent-rewrite": 6,
   "scope-reduced-retry": 2,
-  "failover-sbsr-rebind": 2,
+  "failover-sbsr-rebind": 1,
   "failover-without-fresh-sbsr": 4,
-  "human-gate-required": 3,
+  "irreversible-authorized-exact-fresh": 1,
+  "human-gate-required": 4,
   "version-major-drift": 15,
   "identity-revoked-propagated": 36,
   "delegation-tail-mismatch": 72,

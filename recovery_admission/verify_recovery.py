@@ -5,8 +5,8 @@ This is NOT the generator. It re-derives every verdict from raw anchor fields
 through its own code path and must agree with expected_action/expected_reason
 on every anchor.
 
-Run:  python3 verify-recovery.py            -> full suite + digest-only column
-      python3 verify-recovery.py --tamper   -> negative self-test: mutate one
+Run:  python3 verify_recovery.py            -> full suite + digest-only column
+      python3 verify_recovery.py --tamper   -> negative self-test: mutate one
                                                anchor in memory, verifier must catch it
 Exit 0 = agreement, 1 = any disagreement.
 """
@@ -45,21 +45,39 @@ def derive(a):
     if not ver_ok:
         return ("REFUSES", "version-major-drift")
     if ra == "failover":
-        return ("ALLOW", "failover-sbsr-rebind") if a["runtime"] == "fresh" else ("REFUSES", "failover-without-fresh-sbsr")
+        # RA3-0037 adjudication (Xinghua review): traffic-moving rebind on unapproved
+        # patch drift escalates exactly like the irreversible class does.
+        if a["runtime"] != "fresh":
+            return ("REFUSES", "failover-without-fresh-sbsr")
+        return ("ALLOW", "failover-sbsr-rebind") if a["dispatched_tool_version"] == a["approved_tool_version"] else ("ESCALATE", "human-gate-required")
     if deleg == "none-direct":
         return ("ALLOW", "no-chain-readonly-local-bind")
     if not a["upstream_ok"]:
         return ("HOLD", "intent-hash-preserved-no-silent-rewrite")
     if ra == "irreversible":
-        return ("ALLOW", "clean") if (fresh and a["dispatched_tool_version"] == a["approved_tool_version"]) else ("ESCALATE", "human-gate-required")
+        # F3a fix (Xinghua review): highest-risk class must not share "clean" with readonly.
+        return ("ALLOW", "irreversible-authorized-exact-fresh") if (fresh and a["dispatched_tool_version"] == a["approved_tool_version"]) else ("ESCALATE", "human-gate-required")
     if ra == "state-write" and not fresh:
         return ("DOWNGRADE", "scope-reduced-retry")
     return ("ALLOW", "no-chain-readonly-local-bind" if deleg == "none-direct" else "clean")
+
+GATE_REQ = ("gate_id", "gate_at", "gate_decision", "gate_evidence_digest", "bound_args_digest")
+
+def gate_block_ok(a):
+    """F3b fix (Xinghua review): an ESCALATED action that later proceeds must carry a
+    complete gate block; bound_args_digest must re-bind the exact dispatched args."""
+    if "gate" not in a:
+        return True  # gate block only required when an escalated action proceeds
+    g = a["gate"]
+    return all(k in g for k in GATE_REQ) and g["bound_args_digest"] == a["args_digest"]
 
 def verify(anchors):
     agree, adist, rdist = 0, {}, {}
     for a in anchors:
         got = derive(a)
+        if not gate_block_ok(a):
+            print(f"  GATE-BLOCK INVALID id={a.get('id')}: missing fields or bound_args_digest mismatch")
+            got = ("FAIL", "gate-block-invalid")  # malformed gate block fails the suite
         if got == (a["expected_action"], a["expected_reason"]):
             agree += 1
         else:
@@ -81,10 +99,8 @@ def main():
     print("STATUS:", "PASS" if agree == len(anchors) else "FAIL")
     sys.exit(0 if agree == len(anchors) else 1)
 
-def run(argv=None):
-    """Entry point that works both as a script and as an installed module."""
-    argv = sys.argv if argv is None else argv
-    if "--tamper" in argv:
+if __name__ == "__main__":
+    if "--tamper" in sys.argv:
         anchors = json.load(open(VEC, encoding="utf-8"))["vectors"]
         victim = dict(anchors[0]); victim["args_digest"] = "0" * 64; victim["integrity"] = "tampered"
         mutated = [victim] + anchors[1:]
@@ -94,5 +110,5 @@ def run(argv=None):
         sys.exit(0 if caught else 1)
     main()
 
-if __name__ == "__main__":
-    run()
+# Package entry point (legacy name kept for recovery_admission.__main__)
+run = main
