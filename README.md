@@ -2,7 +2,7 @@
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24280454-blue)](https://doi.org/10.5281/zenodo.24280454)
 
-**Not a gateway — the authorization control plane for the seconds *after* the gateway says yes.** Every self-healing action (retry / degrade / failover / request-rewrite) passes a four-dimension admission decision *before* execution — identity, tool version, side effect, runtime state — and signs a tamper-evident receipt *after*.
+**We judge whether an agent's action exceeds the authorization it was actually granted — parameter by parameter, not tool by tool.** A tool whitelist proves a client *can* call an approved tool; it does not prove every parameter and target of that call was approved. Isolation-legal API calls to the wrong server are still unacceptable. Recovery paths (retry / degrade / failover / request-rewrite) are where this failure class concentrates, so this suite ships 576 anchors for them — but the decision table judges any action class the same way: four dimensions (identity, tool version, side effect, runtime state) *before* execution, a tamper-evident receipt *after*.
 
 Run it (10 seconds, no install beyond Python 3.8+):
 
