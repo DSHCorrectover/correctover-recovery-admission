@@ -4,6 +4,11 @@
 
 **We determine whether an agent's action exceeds the authorization it was actually granted — parameter by parameter, not tool by tool.** A tool whitelist proves a client *can* call an approved tool; it does not prove every parameter and target of that call was approved. Isolation-legal API calls to the wrong server are still unacceptable. Recovery paths (retry / degrade / failover / request-rewrite) are where this failure class concentrates, so this suite ships 576 anchors for them — but the decision table judges any action class the same way: four dimensions (identity, tool version, side effect, runtime state) *before* execution, a tamper-evident receipt *after*.
 
+
+**Scope keywords:** agent authorization · delegated authorization · RFC 8693
+token exchange · act/may_act delegation chains · CI security gate ·
+attestation receipt · parameter-level authorization.
+
 Run it (10 seconds, no install beyond Python 3.8+):
 
 ```bash

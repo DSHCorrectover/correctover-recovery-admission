@@ -19,3 +19,10 @@ What this suite does NOT claim, stated up front:
    expected values; the verifier re-derives them independently. This catches
    table/checker divergence but cannot catch a shared wrong assumption — if you
    believe a verdict is semantically wrong, open an issue with the anchor id.
+
+## Neutrality pre-commitment (2026-11-17)
+
+Someone will offer an annual fee for a MISMATCH to become a PASS within the
+first month of paid operation. The answer is pre-committed: refuse, and
+publish the refusal as a case record. That refusal is the entry condition
+for every OEM channel — a verifier that can be bought is not verifiable.
